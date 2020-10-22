@@ -10,8 +10,8 @@
   "methods": [
     {
       "name": "ISSUE_UPDATE_WEBHOOK",
-      "route": "post /webhook/jira/update",
-      "viewName": "Jira update webhook",
+      "route": "post /webhook/jira/updateissue",
+      "viewName": "Jira update issue webhook",
       "params": [
         {
           "name": "STATUS_NAME",
