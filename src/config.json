@@ -1,0 +1,29 @@
+{
+  "name": "jira-trigger",
+  "type": "trigger",
+  "execProgram": "node",
+  "main": "app.js",
+  "exposeRoute": true,
+  "imgUrl": "jira.png",
+  "version": "1.0.0",
+  "description": "Handle Jira Webhooks",
+  "methods": [
+    {
+      "name": "ISSUE_UPDATE_WEBHOOK",
+      "route": "post /webhook/jira/updateissue",
+      "viewName": "Jira update issue webhook",
+      "params": [
+        {
+          "name": "STATUS_NAME",
+          "viewName": "Status name",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "Project",
+          "type":"string"
+        }
+      ]
+    }
+  ]
+}
