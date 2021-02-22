@@ -2,30 +2,40 @@ const config = require("./config");
 const mapExecutionService = require("../../../api/services/map-execution.service");
 const Trigger = require("../../../api/models/map-trigger.model");
 
+function findTriggers(req, res, execFunc, method){
+    let body = req.body;
+    Trigger.find({ plugin: config.name, method: method }).then((triggers) => {
+        console.log(`Found ${triggers.length} triggers`);
+        res.send('OK');
+        triggers.forEach(trigger=>execFunc(trigger,body,req.io))
+    }).catch((error) => res.send(error))
+}
+
+function execMap(trigger, body, io) {
+    console.log(trigger.map);
+    let message = trigger.name + ' started by Jira trigger'
+    console.log(`********** Jira: executing map ${trigger.map} **********`);
+    mapExecutionService.execute(trigger.map,null,io,{config: trigger.configuration},message,body);
+}
+
 function issueUpdateWebhook(req,res) {
-    let body = req.body
-    Trigger.find({ plugin: config.name }).then((triggers) => {
-        console.log(`Found ${triggers.length} triggers`);
-        res.send('OK');
-        triggers.forEach(trigger=>execTriggerUpdateIssue(trigger,body,req.io))
-    }).catch((error) => res.send(error))
+    findTriggers(req, res, 
+        execTriggerUpdateIssue,
+        "issueUpdateWebhook");
 }
 
-function newIssue (req,res) {
-    let body = req.body
-    Trigger.find({ plugin: config.name }).then((triggers) => {
-        console.log(`Found ${triggers.length} triggers`);
-        res.send('OK');
-        triggers.forEach(trigger=>execTriggerNewIssue(trigger,body,req.io))
-    }).catch((error) => res.send(error))
+function newIssueWebhook (req,res) {
+    findTriggers(req, res, 
+        execTriggerNewIssue,
+        "newIssueWebhook");
 }
 
-function execTriggerUpdateIssue (trigger, body,io) {
+function execTriggerUpdateIssue (trigger, body, io) {
     new Promise ((resolve,reject) => {
         const statusName = body.issue.fields.status.name;
         const projectName = body.issue.fields.project.name;
-        const triggerStatusName = trigger.params.find(o => o.name === 'STATUS_NAME');
-        const triggerProjectName = trigger.params.find(o => o.name === 'PROJECT');
+        const triggerStatusName = trigger.params.find(o => o.name === 'statusName');
+        const triggerProjectName = trigger.params.find(o => o.name === 'projectName');
         if (triggerStatusName.value != statusName) {
             console.log(statusName);
             return reject("Not matching status name");
@@ -36,10 +46,7 @@ function execTriggerUpdateIssue (trigger, body,io) {
             return resolve()
         }
     }).then(() => {
-        console.log(trigger.map);
-        let message = trigger.name + ' started by Jira trigger'
-        console.log(`********** Jira: executing map ${trigger.map} **********`);
-        mapExecutionService.execute(trigger.map,null,io,{config: trigger.configuration},message,body);
+        execMap(trigger, body, io);
     }).catch(err=>{
         console.error(err);
     })
@@ -48,7 +55,7 @@ function execTriggerUpdateIssue (trigger, body,io) {
 function execTriggerNewIssue (trigger, body,io) {
     new Promise ((resolve,reject) => {
         const projectKey = body.issue.fields.project.key;
-        const triggerProjectKey = trigger.params.find(o => o.name === 'PROJECT_KEY');
+        const triggerProjectKey = trigger.params.find(o => o.name === 'projectKey');
         if (triggerProjectKey.value != projectKey) {
             console.log(projectName);
             return reject("Not matching project name");
@@ -56,16 +63,13 @@ function execTriggerNewIssue (trigger, body,io) {
             return resolve()
         }
     }).then(() => {
-        console.log(trigger.map);
-        let message = trigger.name + ' started by Jira trigger'
-        console.log(`********** Jira: executing map ${trigger.map} **********`);
-        mapExecutionService.execute(trigger.map,null,io,{config: trigger.configuration},message,body);
+        execMap(trigger, body, io);
     }).catch(err=>{
         console.error(err);
     })
 }
 
 module.exports = {
-    ISSUE_UPDATE_WEBHOOK: issueUpdateWebhook,
-    NEW_ISSUE_WEBHOOK: newIssue
+    issueUpdateWebhook,
+    newIssueWebhook
 }

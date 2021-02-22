@@ -4,34 +4,34 @@
   "execProgram": "node",
   "main": "app.js",
   "exposeRoute": true,
-  "imgUrl": "jira.png",
-  "version": "1.1.0",
+  "imgUrl": "logo.png",
+  "version": "1.2.0",
   "description": "Handle Jira Webhooks",
   "methods": [
     {
-      "name": "ISSUE_UPDATE_WEBHOOK",
+      "name": "issueUpdateWebhook",
       "route": "post /webhook/jira/updateissue",
       "viewName": "Jira update issue webhook",
       "params": [
         {
-          "name": "STATUS_NAME",
+          "name": "statusName",
           "viewName": "Status name",
           "type": "string"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project",
+          "name": "projectName",
+          "viewName": "Project Name",
           "type":"string"
         }
       ]
     },
     {
-      "name": "NEW_ISSUE_WEBHOOK",
+      "name": "newIssueWebhook",
       "route": "post /webhook/jira/newissue",
       "viewName": "Jira new issue webhook",
       "params": [
         {
-          "name": "PROJECT_KEY",
+          "name": "projectKey",
           "viewName": "Project Key",
           "type":"string"
         }
