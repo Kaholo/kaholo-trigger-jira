@@ -19,8 +19,8 @@
           "type": "string"
         },
         {
-          "name": "projectName",
-          "viewName": "Project Name",
+          "name": "projectKey",
+          "viewName": "Project Key",
           "type":"string"
         }
       ]
